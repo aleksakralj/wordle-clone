@@ -1,16 +1,30 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AppContext } from "../App";
+import YouWon from "./YouWon";
+import YouFailed from "./YouFailed";
 
 function GameOver() {
   const { gameOver, setGameOver, correctWord, currAttempt } =
     useContext(AppContext);
 
+  useEffect(() => {
+    if (gameOver.gameOver) {
+      setTimeout(() => {
+        setGameOver((prevGameOver) => ({ ...prevGameOver, active: true }));
+      }, 50);
+    }
+  }, [gameOver.gameOver, setGameOver]);
+
   return (
-    <div className="gameOver">
-      <h3>{gameOver.guessedWord ? "You Correctly Guessed" : "You Failed!"}</h3>
-      <h1>Correct: {correctWord}</h1>
-      {gameOver.guessedWord && (
-        <h3>You guessed in {currAttempt.attempt} attempts</h3>
+    <div className={`gameOver ${gameOver.active ? "active" : ""}`}>
+      {gameOver.guessedWord ? (
+        <YouWon
+          gameOver={gameOver}
+          currAttempt={currAttempt}
+          correctWord={correctWord}
+        />
+      ) : (
+        <YouFailed correctWord={correctWord} />
       )}
     </div>
   );

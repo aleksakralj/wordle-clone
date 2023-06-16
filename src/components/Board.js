@@ -4,7 +4,6 @@ import Letter from "../helper/Letter";
 function Board() {
   return (
     <div className="board">
-      <h2>Guess here</h2>
       <div className="row">
         <Letter leterPosition={0} attemptValue={0} />
         <Letter leterPosition={1} attemptValue={0} />

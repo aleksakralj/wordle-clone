@@ -2,8 +2,9 @@ import "./App.css";
 import Keyboard from "./components/Keyboard";
 import Board from "./components/Board";
 import { boardDefault, generateWordSet } from "./helper/Word";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import GameOver from "./components/GameOver";
+import swal from "sweetalert";
 
 export const AppContext = createContext();
 
@@ -20,6 +21,12 @@ function App() {
     guessedWord: false,
   });
   const [correctWord, setCorrectWord] = useState("");
+
+  const handleKeyboard = useCallback((event) => {
+    if (event.key === "Enter" && gameOver.gameOver) {
+      handleRestart();
+    }
+  });
 
   const onSelectLetter = (keyVal) => {
     if (currAttempt.letterPosition > 4) return;
@@ -52,14 +59,13 @@ function App() {
       currWord += board[currAttempt.attempt][i];
     }
 
+    console.log(correctWord);
+
     if (wordSet.has(currWord.toLowerCase())) {
       setCurrAttempt({ attempt: currAttempt.attempt + 1, letterPosition: 0 });
     } else {
-      alert("Word Not Found");
+      swal("Word Not Found, press space and try again", "", "warning");
     }
-
-    console.log(currWord);
-    console.log(correctWord);
 
     if (currWord.toLowerCase() === correctWord) {
       setGameOver({ gameOver: true, guessedWord: true });
@@ -71,12 +77,27 @@ function App() {
     }
   };
 
+  const handleRestart = () => {
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    setGameOver(gameOver);
+  }, [gameOver]);
+
   useEffect(() => {
     generateWordSet().then((words) => {
       setWordSet(words.wordSet);
       setCorrectWord(words.todaysWord);
     });
   }, []);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyboard);
+    return () => {
+      document.removeEventListener("keydown", handleKeyboard);
+    };
+  }, [handleKeyboard]);
 
   return (
     <div className="App">
@@ -94,12 +115,16 @@ function App() {
           setDisabledLetters,
           gameOver,
           setGameOver,
+          handleRestart,
         }}
       >
         <h1 className="name">Wordle</h1>
         <div className="game">
           <Board />
-          {gameOver.gameOver ? <GameOver /> : <Keyboard />}
+          <div className="game-controllers">
+            {gameOver.gameOver ? <GameOver /> : <Keyboard />}
+            <button onClick={handleRestart}>Restart</button>
+          </div>
         </div>
       </AppContext.Provider>
     </div>
