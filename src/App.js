@@ -59,8 +59,6 @@ function App() {
       currWord += board[currAttempt.attempt][i];
     }
 
-    console.log(correctWord);
-
     if (wordSet.has(currWord.toLowerCase())) {
       setCurrAttempt({ attempt: currAttempt.attempt + 1, letterPosition: 0 });
     } else {
